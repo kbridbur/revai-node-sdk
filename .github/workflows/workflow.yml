@@ -8,9 +8,9 @@ on:
 
 integration-script: &integration-script
     run: |
-      - npm run build
-      - node build_release_package_json.js
-      - npm run integration-test
+      npm run build
+      node build_release_package_json.js
+      npm run integration-test
   test-integration: &test-integration
     name: Integration Tests (Test)
     <<: *integration-script
@@ -27,10 +27,6 @@ integration-script: &integration-script
       API_KEY: ${{ secrets.STAGE_API_KEY }}
       USER_EMAIL: ${{ secrets.STAGE_USER_EMAIL }}
       BASE_URL: ${{ secrets.STAGE_BASE_URL }}
-  prod-integration: &prod-integration
-    name: Integration Tests (Prod)
-    <<: *integration-script
-    if: contains(github.ref, 'release')
 
 
 jobs:
@@ -61,4 +57,3 @@ jobs:
 
     - <<: *test-integration
     - <<: *stage-integration
-    - <<: *prod-integration
