@@ -7,7 +7,7 @@ on:
       - develop
 
 integration-script: &integration-script
-    script:
+    run: |
       - npm run build
       - node build_release_package_json.js
       - npm run integration-test
