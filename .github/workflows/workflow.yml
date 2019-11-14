@@ -28,3 +28,13 @@ jobs:
         npm run build
         npm run lint
         npm run unit-test
+
+    - name: integration tests
+      run: |
+        npm run build
+        node build_release_package_json.js
+        npm run integration-test
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
+        USER_EMAIL: ${{ secrets.USER_EMAIL }}
+        BASE_URL: ${{ secrets.BASE_URL }}
