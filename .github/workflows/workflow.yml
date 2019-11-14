@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: 
+      - feature/*
+      - develop
+
+jobs:
+  test:
+    name: Build on node ${{ matrix.node_version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: [8, 10, 12]
+    steps:
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node_version }}
+
+    - name: Install Deps
+      run: npm install
+
+    - name: build and test
+      run: |
+        npm run build
+        npm run lint
+        npm run unit-test
