@@ -6,6 +6,33 @@ on:
       - feature/*
       - develop
 
+integration-script: &integration-script
+    script:
+      - npm run build
+      - node build_release_package_json.js
+      - npm run integration-test
+  test-integration: &test-integration
+    name: Integration Tests (Test)
+    <<: *integration-script
+    if: contains(github.ref, 'feature')
+    env:
+      API_KEY: ${{ secrets.TEST_API_KEY }}
+      USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+      BASE_URL: ${{ secrets.TEST_BASE_URL }}
+  stage-integration: &stage-integration
+    name: Integration Tests (Stage)
+    <<: *integration-script
+    if: (github.ref == develop)
+    env:
+      API_KEY: ${{ secrets.STAGE_API_KEY }}
+      USER_EMAIL: ${{ secrets.STAGE_USER_EMAIL }}
+      BASE_URL: ${{ secrets.STAGE_BASE_URL }}
+  prod-integration: &prod-integration
+    name: Integration Tests (Prod)
+    <<: *integration-script
+    if: contains(github.ref, 'release')
+
+
 jobs:
   test:
     name: Build on node ${{ matrix.node_version }}
@@ -23,18 +50,15 @@ jobs:
     - name: Install Deps
       run: npm install
 
-    - name: build and test
-      run: |
-        npm run build
-        npm run lint
-        npm run unit-test
+    - name: Build
+      run: npm run build
 
-    - name: integration tests
-      run: |
-        npm run build
-        node build_release_package_json.js
-        npm run integration-test
-      env:
-        API_KEY: ${{ secrets.API_KEY }}
-        USER_EMAIL: ${{ secrets.USER_EMAIL }}
-        BASE_URL: ${{ secrets.BASE_URL }}
+    - name: Lint
+      run: npm run lint
+
+    - name: Unit Test
+      run: npm run unit-test
+
+    - <<: *test-integration
+    - <<: *stage-integration
+    - <<: *prod-integration
